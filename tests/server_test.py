@@ -7,7 +7,7 @@ url_manager = JsonURLManager('./sources/data.json')
 asyncio.run(url_manager.load())
 
 server = Server(
-    'https://buma.wiki',
+    'https://D',
     './sources',
     url_manager
 )
