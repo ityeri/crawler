@@ -6,7 +6,7 @@ from asyncio import Task
 from typing import Callable
 import aiofiles
 import bs4
-from aiohttp import ClientSession
+from aiohttp import ClientSession, NonHttpUrlClientError
 from playwright.async_api import Playwright, async_playwright
 from yarl import URL
 
@@ -76,6 +76,8 @@ class Crawler:
 
         if not recursive:
             return
+
+        logging.info(f'Downloading source files in: "{page_url}"')
 
         download_tasks: list[Task] = list()
         downloaded_urls: set[URL] = set()
@@ -149,6 +151,8 @@ class Crawler:
         for task in download_tasks:
             await task
 
+        logging.info(f'Downloading page & source file is done: "{page_url}"')
+
     async def download_single_url(self, url: URL):
         if not self.is_child_url(url):
             raise URLOutOfBoundError()
@@ -171,15 +175,17 @@ class Crawler:
 
             await self.url_manager.add_url(url, file_name)
 
+
     async def download_source_file(self, url: URL):
         try:
-            logging.info(
-                f'Download source file: "{url}" ...')  # , download_single_url, html 문서에서 타 페에지로 이어지는 링크들 어떻게 뻄?
+            logging.debug(
+                f'Download source file: "{url}" ...')  # , download_single_url, html 문서에서 타 페에지로 이어지는 링크들 어떻게 추출함?
             await self.download_single_url(url)
-            logging.info(f'Source file downloaded: "{url}"')
+            logging.debug(f'Source file downloaded: "{url}"')
+        except NonHttpUrlClientError:
+            pass
         except Exception:
-            logging.exception(f'Source file download: "{url}" is failed. ignored error:')
-
+            logging.warning(f'Source file download: "{url}" is failed. ignored error:', exc_info=True)
 
     def is_child_url(self, url: URL) -> bool:
         if not url.is_absolute():

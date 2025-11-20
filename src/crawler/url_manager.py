@@ -1,8 +1,6 @@
 import asyncio
 import json
 from abc import abstractmethod, ABC
-from dataclasses import dataclass
-
 import aiofiles
 from yarl import URL
 
@@ -68,4 +66,7 @@ class JsonURLManager(URLManager):
         await self.run_save_job()
 
     async def get_url(self, url: URL) -> str:
-        return self.data[url]
+        try:
+            return self.data[url]
+        except KeyError:
+            raise URLNotFoundError()

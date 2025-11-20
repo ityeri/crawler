@@ -9,4 +9,4 @@ def percent_encoder(url: str) -> str:
     return quote(url, safe='')
 
 
-default_encoder: Callable[[str], str] = percent_encoder
+default_encoder: Callable[[str], str] = sha256_encoder

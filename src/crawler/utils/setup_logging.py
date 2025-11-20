@@ -50,7 +50,8 @@ def setup_logging(
     formatter: logging.Formatter = None,
     level: int = None,
     root: bool = True,
-) -> None:
+    apply_to_uvicorn: bool = True
+) -> logging.Handler:
 
     if level is None:
         level = logging.INFO
@@ -70,3 +71,13 @@ def setup_logging(
     handler.setFormatter(formatter)
     logger.setLevel(level)
     logger.addHandler(handler)
+
+    if apply_to_uvicorn:
+        for name in ("uvicorn", "uvicorn.error", "uvicorn.access"):
+            uv_logger = logging.getLogger(name)
+            uv_logger.handlers.clear()  # 기본 handler 제거
+            uv_logger.setLevel(level)
+            uv_logger.addHandler(handler)
+            # uv_logger.propagate = False  # root로 이중 출력 방지
+
+    return handler
