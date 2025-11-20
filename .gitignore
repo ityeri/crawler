@@ -207,4 +207,4 @@ __marimo__/
 .venv*
 ._*
 temp
-sources/
+downloaded/
